@@ -1,7 +1,7 @@
 {
   "name": "gsheet-api",
   "version": "1.0.0",
-  "description": "Google Spreadsheet API Simplifed",
+  "description": "Google Spreadsheet API Simplifed (with CRUD)",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",

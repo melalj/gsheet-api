@@ -1,0 +1,6 @@
+{
+  "name": "gsheet-api",
+  "description": "Google Spreadsheet API Simplifed (with CRUD)",
+  "repository": "https://github.com/melalj/gsheet-api",
+  "keywords": ["google sheets", "rest api", "api", "gsheet"]
+}

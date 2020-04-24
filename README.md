@@ -2,11 +2,13 @@
 
 A simple implemetation for Google Spreadsheets to use a micro service with your stack
 
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/melalj/gsheet-api)
+
 ## Get started
 
 ### Create a user and load credentials
 
-- Open the [Service Accounts page](https://console.cloud.google.com/iam-admin/serviceaccounts?_ga=2.13372087.1667305299.1587736176-829430914.1579115700) in the Cloud Console.
+- Open the [Service Accounts page](https://console.cloud.google.com/iam-admin/serviceaccounts) in the Cloud Console.
 - Click Select a project, choose your project, and click Open.
 - Click Create Service Account.
 - Enter a service account name (friendly display name), an optional description, select a role you wish to grant to the service account, and then click Save.
@@ -16,7 +18,7 @@ A simple implemetation for Google Spreadsheets to use a micro service with your 
 - On terminal, run the following command to get the environment variable to use with gsheet-api:
 
 ```sh
-GOOGLE_CREDENTIALS=`base64 key.json`
+GOOGLE_CREDENTIALS=`base64 credentials.json`
 ```
 
 ### Add service Account to your Drive folder/sheets
@@ -45,6 +47,7 @@ yarn install
 # You can add your environement variables in a .env file
 yarn start
 # the api will be available on http://localhost:3000/
+# You can customize the port with the environmenet variable PORT
 ```
 
 ## API endpoints
@@ -147,9 +150,22 @@ Request: `PUT /1MNXlNRwbUo4-qbTCdBZGW3Q8sq7pUDov-2ElTFOA0wo/Sheet1/5`
 Body: `{ "email": "john@appleseed.com" }`
 Result: `{"rowNumber": 5 "name": "Jean", "email": "john@appleseed.com"}`
 
-## Secure endpoints
+### `DELETE /:sheetId/:sheetName/:rowNumber`
 
-You can either secure these endpoints with either:
+Delete a specific row from a sheet
+
+#### Example
+
+Request: `Delete /1MNXlNRwbUo4-qbTCdBZGW3Q8sq7pUDov-2ElTFOA0wo/Sheet1/5`
+Result: `{}`
+
+## Secure your endpoints
+
+You can secure these endpoints with either:
 
 - `X-Private-Api-Key` header: You need to set the environement variable `PRIVATE_API_KEY`
 - `key` query string: You need to set the environement variable `PRIVATE_API_KEY_QUERY`
+
+## Contribute
+
+You are welcomed to fork the project and make pull requests. Or just file an issue or suggestion 😊
