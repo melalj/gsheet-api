@@ -35,7 +35,16 @@ git clone git@github.com:melalj/gsheet-api.git
 - Use docker to load the API
 
 ```sh
-docker run -p 80:8080 -e GOOGLE_CREDENTIALS=$GOOGLE_CREDENTIALS melalj/gsheet-api
+docker run -p 3000:3000 -e GOOGLE_CREDENTIALS=$GOOGLE_CREDENTIALS melalj/gsheet-api
+```
+
+- start it locally
+
+```sh
+yarn install
+# You can add your environement variables in a .env file
+yarn start
+# the api will be available on http://localhost:3000/
 ```
 
 ## API endpoints
