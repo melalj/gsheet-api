@@ -129,9 +129,9 @@ Create a new row in a sheet
 
 #### Example
 
-Request: `POST /1MNXlNRwbUo4-qbTCdBZGW3Q8sq7pUDov-2ElTFOA0wo/Sheet1`
-Body: `{ "name": "Jean", "email": "jean@appleseed.com" }`
-Result: `{"rowNumber": 5 "name": "Jean", "email": "jean@appleseed.com"}`
+- Request: `POST /1MNXlNRwbUo4-qbTCdBZGW3Q8sq7pUDov-2ElTFOA0wo/Sheet1`
+- Body: `{ "name": "Jean", "email": "jean@appleseed.com" }`
+- Result: `{"rowNumber": 5 "name": "Jean", "email": "jean@appleseed.com"}`
 
 ### `GET /:sheetId/:sheetName/:rowNumber`
 
@@ -139,8 +139,8 @@ Query a specific row from a sheet
 
 #### Example
 
-Request: `GET /1MNXlNRwbUo4-qbTCdBZGW3Q8sq7pUDov-2ElTFOA0wo/Sheet1/3`
-Result: `{"rowNumber": 3, "name": "Jane", "email": "john@appleseed.com"}`
+- Request: `GET /1MNXlNRwbUo4-qbTCdBZGW3Q8sq7pUDov-2ElTFOA0wo/Sheet1/3`
+- Result: `{"rowNumber": 3, "name": "Jane", "email": "john@appleseed.com"}`
 
 ### `PUT /:sheetId/:sheetName/:rowNumber`
 
@@ -148,9 +148,9 @@ Update a specific row from a sheet
 
 #### Example
 
-Request: `PUT /1MNXlNRwbUo4-qbTCdBZGW3Q8sq7pUDov-2ElTFOA0wo/Sheet1/5`
-Body: `{ "email": "john@appleseed.com" }`
-Result: `{"rowNumber": 5 "name": "Jean", "email": "john@appleseed.com"}`
+- Request: `PUT /1MNXlNRwbUo4-qbTCdBZGW3Q8sq7pUDov-2ElTFOA0wo/Sheet1/5`
+- Body: `{ "email": "john@appleseed.com" }`
+- Result: `{"rowNumber": 5 "name": "Jean", "email": "john@appleseed.com"}`
 
 ### `DELETE /:sheetId/:sheetName/:rowNumber`
 
@@ -158,8 +158,8 @@ Delete a specific row from a sheet
 
 #### Example
 
-Request: `Delete /1MNXlNRwbUo4-qbTCdBZGW3Q8sq7pUDov-2ElTFOA0wo/Sheet1/5`
-Result: `{}`
+- Request: `Delete /1MNXlNRwbUo4-qbTCdBZGW3Q8sq7pUDov-2ElTFOA0wo/Sheet1/5`
+- Result: `{}`
 
 ## Secure your endpoints
 
