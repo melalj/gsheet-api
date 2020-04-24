@@ -1,0 +1,7 @@
+.DS_Store
+*.log
+coverage
+node_modules
+.idea
+*.pid
+credentials.json

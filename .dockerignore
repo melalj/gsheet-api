@@ -1,0 +1,7 @@
+.git
+README.md
+.DS_Store
+*.log
+coverage
+.idea
+*.pid
