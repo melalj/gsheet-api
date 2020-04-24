@@ -110,8 +110,8 @@ router.get('/:spreadsheetId([a-zA-Z0-9-_]+)/:sheetName', async (req, res, next) 
     });
 
     const headerRow = sheetRes.data.valueRanges[0].values[0];
-    const totalItems = sheetRes.data.valueRanges[1].values.length;
-    const rows = sheetRes.data.valueRanges[2].values;
+    const totalItems = (sheetRes.data.valueRanges[1].values || []).length;
+    const rows = sheetRes.data.valueRanges[2].values || [];
 
     const columns = {};
     headerRow.forEach((columnName, columnIndex) => {
@@ -123,11 +123,13 @@ router.get('/:spreadsheetId([a-zA-Z0-9-_]+)/:sheetName', async (req, res, next) 
         data.push(rows[i][parseInt(req.query.returnColumn, 10)]);
       } else {
         const row = {};
+        let validValuesCount = 0;
         row.rowNumber = (firstRow + i);
         headerRow.forEach((columnName, columnIndex) => {
           row[columnName] = utils.detectValues(rows[i][columnIndex]);
+          if (row[columnName]) validValuesCount += 1;
         });
-        data.push(row);
+        if (validValuesCount) data.push(row);
       }
     }
 
