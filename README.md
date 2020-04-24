@@ -6,13 +6,13 @@ A simple implemetation for Google Spreadsheets to use a micro service with your 
 
 ### Create a user and load credentials
 
-- Open the [https://console.cloud.google.com/iam-admin/serviceaccounts?_ga=2.13372087.1667305299.1587736176-829430914.1579115700](Service Accounts page) in the Cloud Console.
+- Open the [Service Accounts page](https://console.cloud.google.com/iam-admin/serviceaccounts?_ga=2.13372087.1667305299.1587736176-829430914.1579115700) in the Cloud Console.
 - Click Select a project, choose your project, and click Open.
 - Click Create Service Account.
 - Enter a service account name (friendly display name), an optional description, select a role you wish to grant to the service account, and then click Save.
 - Download the JSON Key, rename it to `credentials.json`
-- [https://console.developers.google.com/apis/api/drive.googleapis.com/overview](Enable Drive API) for your project
-- [https://console.developers.google.com/apis/api/sheets.googleapis.com/overview](Enable Sheets API) for your project
+- [Enable Drive API](https://console.developers.google.com/apis/api/drive.googleapis.com/overview) for your project
+- [Enable Sheets API](https://console.developers.google.com/apis/api/sheets.googleapis.com/overview) for your project
 - On terminal, run the following command to get the environment variable to use with gsheet-api:
 
 ```sh
