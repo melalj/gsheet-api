@@ -1,6 +1,6 @@
 # Google Sheets API
 
-A simple implemetation for Google Spreadsheets to use a micro service with your stack
+A simple implementation for Google Spreadsheets to use a micro service with your stack
 
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/melalj/gsheet-api)
 
@@ -39,6 +39,8 @@ git clone git@github.com:melalj/gsheet-api.git
 ```sh
 docker run -p 3000:3000 -e GOOGLE_CREDENTIALS=$GOOGLE_CREDENTIALS melalj/gsheet-api
 ```
+
+- You can also [deploy it on Heroku](https://heroku.com/deploy?template=https://github.com/melalj/gsheet-api) and set the config vars (GOOGLE_CREDENTIALS)
 
 - start it locally
 
