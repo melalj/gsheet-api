@@ -137,6 +137,7 @@ router.get('/:spreadsheetId([a-zA-Z0-9-_]+)/:sheetName', async (req, res, next) 
       perPage,
       range: paginatedRange,
       offset,
+      nextOffset: offset + perPage,
       totalItems,
       haveNext: totalItems > offset + perPage,
     };
@@ -196,15 +197,18 @@ router.get('/:spreadsheetId([a-zA-Z0-9-_]+)/:sheetName/:rowNumber', async (req, 
 });
 
 // --------------
-// PUT /gsheet/:spreadsheetId/:sheetName/:rowNumber
+// PUT /gsheet/:spreadsheetId/:sheetName
 // --------------
-router.put('/:spreadsheetId/:sheetName/:rowNumber', async (req, res, next) => {
+router.put('/:spreadsheetId/:sheetName', async (req, res, next) => {
   try {
     // Validations
     if (!req.params.spreadsheetId) return utils.throwError('Missing spreadsheetId', 400);
     if (!req.params.sheetName) return utils.throwError('Missing sheetName', 400);
-    if (!req.params.rowNumber) return utils.throwError('Missing rowNumber').notEmpty().isInt({ min: 2 });
-    const params = utils.getParams(req.params, ['spreadsheetId', 'sheetName', 'rowNumber']);
+
+    if (!req.body) return utils.throwError('Missing body');
+    if (typeof req.body !== 'object') return utils.throwError('Body should be an object: { ROW_NUMBER: { DATA_TO_UPDATE },... }');
+
+    const params = utils.getParams(req.params, ['spreadsheetId', 'sheetName']);
 
     const { spreadsheetId, sheetName } = params;
 
@@ -216,8 +220,6 @@ router.put('/:spreadsheetId/:sheetName/:rowNumber', async (req, res, next) => {
     });
     const headerRow = sheetRes.data.values[0];
 
-    const { body } = req;
-
     const data = [];
 
     // Existing columns
@@ -226,28 +228,33 @@ router.put('/:spreadsheetId/:sheetName/:rowNumber', async (req, res, next) => {
       columns[columnName] = `${sheetName}!${utils.numberToLetter(columnIndex + 1)}`;
     });
 
-    // New columns
-    let newColCount = 0;
-    Object.keys(body).forEach((k) => {
-      if (!columns[k]) {
-        newColCount += 1;
-        columns[k] = `${sheetName}!${utils.numberToLetter(headerRow.length + newColCount)}`;
-        data.push({
-          range: `${columns[k]}1`,
-          values: [[k]],
-        });
-      }
-    });
+    // Build data to update
+    Object.keys(req.body).forEach((rowNumber) => {
+      const body = req.body[rowNumber];
 
-    // ValueRange
-    Object.keys(body).forEach((columnName) => {
-      data.push({
-        range: `${columns[columnName]}${params.rowNumber}`,
-        values: [[body[columnName]]],
+      // New columns
+      let newColCount = 0;
+      Object.keys(body).forEach((k) => {
+        if (!columns[k]) {
+          newColCount += 1;
+          columns[k] = `${sheetName}!${utils.numberToLetter(headerRow.length + newColCount)}`;
+          data.push({
+            range: `${columns[k]}1`,
+            values: [[k]],
+          });
+        }
+      });
+
+      // ValueRange
+      Object.keys(body).forEach((columnName) => {
+        data.push({
+          range: `${columns[columnName]}${rowNumber}`,
+          values: [[body[columnName]]],
+        });
       });
     });
 
-    // Update
+    // Batch Update
     const updatedSheet = await sheets.spreadsheets.values.batchUpdate({
       spreadsheetId,
       resource: {
@@ -268,17 +275,18 @@ router.put('/:spreadsheetId/:sheetName/:rowNumber', async (req, res, next) => {
 });
 
 // --------------
-// DELETE /gsheet/:spreadsheetId/:sheetName/:rowNumber
+// DELETE /gsheet/:spreadsheetId/:sheetName
 // --------------
-router.delete('/:spreadsheetId/:sheetName/:rowNumber', async (req, res, next) => {
+router.delete('/:spreadsheetId/:sheetName', async (req, res, next) => {
   try {
     // Validations
     if (!req.params.spreadsheetId) return utils.throwError('Missing spreadsheetId', 400);
     if (!req.params.sheetName) return utils.throwError('Missing sheetName', 400);
-    if (!req.params.rowNumber) return utils.throwError('Missing rowNumber').notEmpty().isInt({ min: 2 });
-    const params = utils.getParams(req.params, ['spreadsheetId', 'sheetName', 'rowNumber']);
+    if (!req.body) return utils.throwError('Missing body');
+    if (!Array.isArray(req.body)) return utils.throwError('Body should be an array: [ ROW_NUMBER... ]');
+    const params = utils.getParams(req.params, ['spreadsheetId', 'sheetName']);
 
-    const { spreadsheetId, sheetName, rowNumber } = params;
+    const { spreadsheetId, sheetName } = params;
 
     // Get sheetId
     const sheetRes = await sheets.spreadsheets.get({
@@ -290,27 +298,33 @@ router.delete('/:spreadsheetId/:sheetName/:rowNumber', async (req, res, next) =>
 
     const { sheetId } = sheetInfo.properties;
 
-    // Delete
-    const endIndex = Number(rowNumber);
+    // Build requests (we should delete from the bottom to top)
+    const rowNumbers = req.body.map((d) => Number(d));
+    rowNumbers.sort((a, b) => b - a);
+
+    const requests = [];
+    rowNumbers.forEach((endIndex) => {
+      requests.push({
+        deleteDimension: {
+          range: {
+            sheetId,
+            dimension: 'ROWS',
+            startIndex: endIndex - 1,
+            endIndex,
+          },
+        },
+      });
+    });
+
+    // Batch Delete
     const updatedSheet = await sheets.spreadsheets.batchUpdate({
       spreadsheetId,
       requestBody: {
-        requests: [
-          {
-            deleteDimension: {
-              range: {
-                sheetId,
-                dimension: 'ROWS',
-                startIndex: endIndex - 1,
-                endIndex,
-              },
-            },
-          },
-        ],
+        requests,
       },
     });
 
-    return res.send(updatedSheet.data.replies[0]);
+    return res.send({ deletedRows: updatedSheet.data.replies.length });
   } catch (e) {
     if (e.response) {
       const error = new Error(e.response.data.error.message);
@@ -329,6 +343,9 @@ router.post('/:spreadsheetId/:sheetName', async (req, res, next) => {
     // Validations
     if (!req.params.spreadsheetId) return utils.throwError('Missing spreadsheetId', 400);
     if (!req.params.sheetName) return utils.throwError('Missing sheetName', 400);
+    if (!req.body) return utils.throwError('Missing body');
+    if (!Array.isArray(req.body)) return utils.throwError('Body should be an array: [ ROW... ]');
+
     const params = utils.getParams(req.params, ['spreadsheetId', 'sheetName']);
 
     const { spreadsheetId, sheetName } = params;
@@ -342,8 +359,6 @@ router.post('/:spreadsheetId/:sheetName', async (req, res, next) => {
     });
     const rows = sheetRes.data.values;
 
-    const { body } = req;
-
     // Existing columns
     const columns = {};
     const columnList = (rows ? rows[0] : []).slice();
@@ -351,19 +366,21 @@ router.post('/:spreadsheetId/:sheetName', async (req, res, next) => {
       columns[columnName] = `${sheetName}!${utils.numberToLetter(columnIndex + 1)}`;
     });
 
-    // New columns
+    // Check if there's new columns
     let newColCount = 0;
     const data = [];
-    Object.keys(body).forEach((k) => {
-      if (!columns[k]) {
-        newColCount += 1;
-        columns[k] = `${sheetName}!${utils.numberToLetter(columnList.length + 1)}`;
-        columnList.push(k);
-        data.push({
-          range: `${columns[k]}1`,
-          values: [[k]],
-        });
-      }
+    req.body.forEach((body) => {
+      Object.keys(body).forEach((k) => {
+        if (!columns[k]) {
+          newColCount += 1;
+          columns[k] = `${sheetName}!${utils.numberToLetter(columnList.length + 1)}`;
+          columnList.push(k);
+          data.push({
+            range: `${columns[k]}1`,
+            values: [[k]],
+          });
+        }
+      });
     });
     if (newColCount) {
       await sheets.spreadsheets.values.batchUpdate({
@@ -375,7 +392,7 @@ router.post('/:spreadsheetId/:sheetName', async (req, res, next) => {
       });
     }
 
-    const values = [columnList.map((c) => body[c] || '')];
+    const values = req.body.map((r) => columnList.map((c) => r[c] || ''));
 
     // Append
     const appendedSheet = await sheets.spreadsheets.values.append({
@@ -390,9 +407,8 @@ router.post('/:spreadsheetId/:sheetName', async (req, res, next) => {
     });
 
     // Output
-    const rowNumber = appendedSheet.data.updates.updatedRange.split('!A')[1].split(':')[0];
-    body.rowNumber = Number(rowNumber);
-    return res.send(body);
+    const { updatedRows } = appendedSheet.data.updates;
+    return res.send({ insertedRow: updatedRows });
   } catch (e) {
     if (e.response) {
       const error = new Error(e.response.data.error.message);

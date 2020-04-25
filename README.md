@@ -1,8 +1,12 @@
 # Google Sheets API
 
-A simple implementation for Google Spreadsheets to use a micro service with your stack
+A simple implementation for Google Spreadsheets to use a micro service with your stack.
+
+This allow you to use Google Spreadsheets as a backend.
 
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/melalj/gsheet-api)
+
+[![dockeri.co](https://dockeri.co/image/melalj/gsheet-api)](https://hub.docker.com/r/melalj/gsheet-api)
 
 ## Get started
 
@@ -80,7 +84,19 @@ Lists all available Sheets from your spreadsheet.
 #### Example
 
 - Request: `GET /1MNXlNRwbUo4-qbTCdBZGW3Q8sq7pUDov-2ElTFOA0wo`
-- Result: `[{"title": "Sheet1", "sheetId": 4543532, "rowNumber": 0, "rowCount": 2, "columnCount": 2}]`
+- Result:
+
+```json
+[
+  {
+    "title": "Sheet1",
+    "sheetId": 4543532,
+    "rowNumber": 0,
+    "rowCount": 2,
+    "columnCount": 2,
+  }
+]
+```
 
 ### `GET /:sheetId/:sheetName`
 
@@ -125,13 +141,14 @@ Query data from a sheet
 
 ### `POST /:sheetId/:sheetName`
 
-Create a new row in a sheet
+Append rows to a sheet.
+If a column doesn't exists, it will be added on the right of the table.
 
 #### Example
 
 - Request: `POST /1MNXlNRwbUo4-qbTCdBZGW3Q8sq7pUDov-2ElTFOA0wo/Sheet1`
-- Body: `{ "name": "Jean", "email": "jean@appleseed.com" }`
-- Result: `{"rowNumber": 5 "name": "Jean", "email": "jean@appleseed.com"}`
+- Body: `[{ "name": "Jean", "email": "jean@appleseed.com" }, { "name": "Bunny", "email": "bunny@appleseed.com" }, ]`
+- Result: `{"insertedRow": 2}`
 
 ### `GET /:sheetId/:sheetName/:rowNumber`
 
@@ -142,24 +159,45 @@ Query a specific row from a sheet
 - Request: `GET /1MNXlNRwbUo4-qbTCdBZGW3Q8sq7pUDov-2ElTFOA0wo/Sheet1/3`
 - Result: `{"rowNumber": 3, "name": "Jane", "email": "john@appleseed.com"}`
 
-### `PUT /:sheetId/:sheetName/:rowNumber`
+### `PUT /:sheetId/:sheetName`
 
-Update a specific row from a sheet
-
-#### Example
-
-- Request: `PUT /1MNXlNRwbUo4-qbTCdBZGW3Q8sq7pUDov-2ElTFOA0wo/Sheet1/5`
-- Body: `{ "email": "john@appleseed.com" }`
-- Result: `{"rowNumber": 5 "name": "Jean", "email": "john@appleseed.com"}`
-
-### `DELETE /:sheetId/:sheetName/:rowNumber`
-
-Delete a specific row from a sheet
+Update rows in a sheet.
+If a column doesn't exists, it will be added on the right of the table.
 
 #### Example
 
-- Request: `Delete /1MNXlNRwbUo4-qbTCdBZGW3Q8sq7pUDov-2ElTFOA0wo/Sheet1/5`
-- Result: `{}`
+- Request: `PUT /1MNXlNRwbUo4-qbTCdBZGW3Q8sq7pUDov-2ElTFOA0wo/Sheet1`
+- Body: `{ "4" : { "email": "john@appleseed.com" }, "1": { "phone": "415-500-7000" } }`
+- Result:
+
+```json
+[
+  {
+    "spreadsheetId": "1MNXlNRwbUo4-qbTCdBZGW3Q8sq7pUDov-2ElTFOA0wo",
+    "updatedRange": "Sheet1!B4",
+    "updatedRows": 1,
+    "updatedColumns": 1,
+    "updatedCells": 1
+  },
+  {
+    "spreadsheetId": "1MNXlNRwbUo4-qbTCdBZGW3Q8sq7pUDov-2ElTFOA0wo",
+    "updatedRange": "Sheet1!C1",
+    "updatedRows": 1,
+    "updatedColumns": 1,
+    "updatedCells": 1
+  }
+]
+```
+
+### `DELETE /:sheetId/:sheetName`
+
+Delete rows from a sheet
+
+#### Example
+
+- Request: `Delete /1MNXlNRwbUo4-qbTCdBZGW3Q8sq7pUDov-2ElTFOA0wo/Sheet1`
+- Body: `[4, 5]`
+- Result: `{ "deletedRows": 2 }`
 
 ## Secure your endpoints
 
@@ -167,6 +205,12 @@ You can secure these endpoints with either:
 
 - `X-Private-Api-Key` header: You need to set the environement variable `PRIVATE_API_KEY`
 - `key` query string: You need to set the environement variable `PRIVATE_API_KEY_QUERY`
+
+## Limitations and Quota
+
+[Following Google Sheets API documentation](https://developers.google.com/sheets/api/limits). This version of the Google Sheets API has a limit of 500 requests per 100 seconds per project, and 100 requests per 100 seconds per user. Limits for reads and writes are tracked separately. There is no daily usage limit.
+
+Be mindful about this limitation, if you want to use this api as a backend for your frontend!
 
 ## Contribute
 
