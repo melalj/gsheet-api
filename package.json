@@ -1,6 +1,6 @@
 {
   "name": "gsheet-api",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Google Spreadsheet API Simplifed (with CRUD)",
   "main": "index.js",
   "scripts": {
@@ -26,10 +26,7 @@
   },
   "devDependencies": {
     "eslint": "6.8.0",
-    "eslint-config-airbnb": "18.1.0",
-    "eslint-plugin-import": "2.20.2",
-    "eslint-plugin-jsx-a11y": "6.2.3",
-    "eslint-plugin-react": "7.19.0",
-    "eslint-plugin-react-hooks": "2.5.0"
+    "eslint-config-airbnb-base": "14.1.0",
+    "eslint-plugin-import": "2.20.2"
   }
 }

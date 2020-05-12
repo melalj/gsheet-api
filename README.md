@@ -41,7 +41,7 @@ git clone git@github.com:melalj/gsheet-api.git
 - Use docker to load the API
 
 ```sh
-docker run -p 3000:3000 -e GOOGLE_CREDENTIALS=$GOOGLE_CREDENTIALS melalj/gsheet-api
+docker run -p 8080:80 -e GOOGLE_CREDENTIALS=$GOOGLE_CREDENTIALS melalj/gsheet-api
 ```
 
 - You can also [deploy it on Heroku](https://heroku.com/deploy?template=https://github.com/melalj/gsheet-api) and set the config vars (GOOGLE_CREDENTIALS)
@@ -52,7 +52,7 @@ docker run -p 3000:3000 -e GOOGLE_CREDENTIALS=$GOOGLE_CREDENTIALS melalj/gsheet-
 yarn install
 # You can add your environement variables in a .env file
 yarn start
-# the api will be available on http://localhost:3000/
+# the api will be available on http://localhost:80/
 # You can customize the port with the environmenet variable PORT
 ```
 
