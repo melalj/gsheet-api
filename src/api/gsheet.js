@@ -258,7 +258,7 @@ router.put('/:spreadsheetId/:sheetName', async (req, res, next) => {
     const updatedSheet = await sheets.spreadsheets.values.batchUpdate({
       spreadsheetId,
       resource: {
-        valueInputOption: 'RAW',
+        valueInputOption: req.query.valueInputOption || 'USER_ENTERED',
         data,
       },
     });
@@ -386,7 +386,7 @@ router.post('/:spreadsheetId/:sheetName', async (req, res, next) => {
       await sheets.spreadsheets.values.batchUpdate({
         spreadsheetId,
         resource: {
-          valueInputOption: 'RAW',
+          valueInputOption: req.query.valueInputOption || 'USER_ENTERED',
           data,
         },
       });
@@ -398,7 +398,7 @@ router.post('/:spreadsheetId/:sheetName', async (req, res, next) => {
     const appendedSheet = await sheets.spreadsheets.values.append({
       spreadsheetId,
       range: defaultRange,
-      valueInputOption: 'RAW',
+      valueInputOption: req.query.valueInputOption || 'USER_ENTERED',
       includeValuesInResponse: true,
       insertDataOption: 'INSERT_ROWS',
       resource: {

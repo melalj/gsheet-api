@@ -143,6 +143,7 @@ Query data from a sheet
 
 Append rows to a sheet.
 If a column doesn't exists, it will be added on the right of the table.
+You can you the query string [valueInputOption=RAW](https://developers.google.com/sheets/api/reference/rest/v4/ValueInputOption) to determine how input data should be interpreted.
 
 #### Example
 
@@ -163,6 +164,8 @@ Query a specific row from a sheet
 
 Update rows in a sheet.
 If a column doesn't exists, it will be added on the right of the table.
+
+You can you the query string [valueInputOption=RAW](https://developers.google.com/sheets/api/reference/rest/v4/ValueInputOption) to determine how input data should be interpreted.
 
 #### Example
 
