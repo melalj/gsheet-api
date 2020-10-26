@@ -137,6 +137,7 @@ Query data from a sheet
 | ----- | ---- | -------- | ----------- |
 | perPage | integer | No | How many items per page (default: 1000) |
 | offset | integer | No | Query data from a specific row (default: 2) |
+| maxColumns | integer | No | Number of colums in the sheet (default: 109) |
 | returnColumn | string | No | Returns only one specific |
 
 ### `POST /:sheetId/:sheetName`

@@ -94,7 +94,9 @@ router.get('/:spreadsheetId([a-zA-Z0-9-_]+)/:sheetName', async (req, res, next) 
     const firstRow = offset;
     const lastRow = offset + perPage - 1;
 
-    const maxColumn = 'EE';
+    const maxColumn = req.query.columnCount
+      ? utils.numberToLetter(Number(req.query.columnCount))
+      : 'EE';
 
     const headerRange = `${sheetName}!A1:${maxColumn}1`;
     const countRange = `${sheetName}!A2:A`;
@@ -166,7 +168,9 @@ router.get('/:spreadsheetId([a-zA-Z0-9-_]+)/:sheetName/:rowNumber', async (req, 
 
     const { spreadsheetId, sheetName } = params;
 
-    const maxColumn = 'EE';
+    const maxColumn = req.query.columnCount
+      ? utils.numberToLetter(Number(req.query.columnCount))
+      : 'EE';
 
     const headerRange = `${sheetName}!A1:${maxColumn}1`;
     const dataRange = `${sheetName}!A${rowNumber}:${maxColumn}${rowNumber}`;
@@ -212,7 +216,10 @@ router.put('/:spreadsheetId/:sheetName', async (req, res, next) => {
 
     const { spreadsheetId, sheetName } = params;
 
-    const maxColumn = 'EE';
+    const maxColumn = req.query.columnCount
+      ? utils.numberToLetter(Number(req.query.columnCount))
+      : 'EE';
+
     const headerRange = `${sheetName}!A1:${maxColumn}1`;
     const sheetRes = await sheets.spreadsheets.values.get({
       spreadsheetId,
@@ -350,7 +357,9 @@ router.post('/:spreadsheetId/:sheetName', async (req, res, next) => {
 
     const { spreadsheetId, sheetName } = params;
 
-    const maxColumn = 'EE';
+    const maxColumn = req.query.columnCount
+      ? utils.numberToLetter(Number(req.query.columnCount))
+      : 'EE';
     const defaultRange = `${sheetName}!A:${maxColumn}`;
 
     const sheetRes = await sheets.spreadsheets.values.get({
