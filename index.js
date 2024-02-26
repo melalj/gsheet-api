@@ -1,2 +1,2 @@
 require('dotenv').config();
-require('./src').start();
+require('./src/index.js').start();

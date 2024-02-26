@@ -1,10 +1,46 @@
 {
-  "extends": "airbnb-base",
+  "extends": [
+    "airbnb-base",
+    "plugin:require-extensions/recommended"
+  ],
+  "plugins": [
+      "require-extensions"
+  ],
+  "parserOptions": {
+    "ecmaVersion": 2020
+  },
   "env": {
-    "mocha": true,
     "node": true
   },
   "rules": {
-    "no-console": 0
+    "func-names": 0,
+    "prefer-spread": 0,
+    "no-await-in-loop": 0,
+    "no-underscore-dangle": 0,
+    "no-continue": 0,
+    "no-loop-func": 0,
+    "import/first": 0,
+    "object-curly-newline": ["error", {
+      "ImportDeclaration": { "multiline": true, "minProperties": 4, "consistent": true }
+    }],
+    "import/order": [
+      "error",
+      {
+        "groups": ["builtin", "external", "internal", "parent", "sibling", "index", "object", "type"],
+        "distinctGroup": true,
+        "newlines-between": "always",
+        "alphabetize": {
+          "order": "asc",
+          "caseInsensitive": true
+        }
+      }
+    ],
+    "import/no-extraneous-dependencies": ["error", {"devDependencies": true}],
+
+    "import/extensions": [
+      "error",
+      "never",
+      { "js": "always" }
+    ]
   }
 }

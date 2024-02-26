@@ -1,10 +1,11 @@
-const express = require('express');
-const morgan = require('morgan');
 const bodyParser = require('body-parser');
 const compression = require('compression');
+const express = require('express');
+const morgan = require('morgan');
 
-const { throwError } = require('../utils');
-const gsheetEndpoint = require('./gsheet');
+const { throwError } = require('../utils.js');
+
+const gsheetEndpoint = require('./gsheet.js');
 
 const logger = morgan('combined');
 
@@ -23,6 +24,7 @@ app.use(bodyParser.urlencoded({ limit: '10mb', extended: true, parameterLimit: 1
 
 // Health check
 app.get('/~health', (req, res) => res.send('ok'));
+app.get('/health', (req, res) => res.send('ok'));
 
 // Remove trailing slashes
 app.use((req, res, next) => {
@@ -68,22 +70,16 @@ app.use((req, res) => {
   return res.send({ error: 'Not found' });
 });
 
-// Log Error
-app.use((err, req, res, next) => {
-  const status = err.status || 500;
-  if (status >= 500) {
-    console.error(`${err.message} (${err.stack.replace(/\n/g, ', ')})`);
-  }
-  return next(err);
-});
-
 // Output Error page
 app.use((err, req, res, next) => { // eslint-disable-line
   const status = err.status || 500;
   res.status(status);
+  if (status >= 500) {
+    // eslint-disable-next-line no-console
+    console.error(`${err.message} (${err.stack.replace(/\n/g, ', ')})`);
+  }
   if (process.env.NODE_ENV === 'production') {
-    const message = (status >= 500) ? 'Internal server error' : err.message;
-    return res.send({ error: message });
+    return res.send({ error: err.message });
   }
   res.send({
     error: err.message,

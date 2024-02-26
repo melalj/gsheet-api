@@ -49,9 +49,9 @@ docker run -p 8080:80 -e GOOGLE_CREDENTIALS=$GOOGLE_CREDENTIALS melalj/gsheet-ap
 - start it locally
 
 ```sh
-yarn install
+npm install
 # You can add your environement variables in a .env file
-yarn start
+npm start
 # the api will be available on http://localhost:80/
 # You can customize the port with the environmenet variable PORT
 ```
@@ -62,7 +62,7 @@ yarn start
 
 Lists all available Spreadsheets from your Google Drive
 
-#### Example
+### Example
 
 - Request: `GET /`
 - Result:
@@ -81,7 +81,7 @@ Lists all available Spreadsheets from your Google Drive
 
 Lists all available Sheets from your spreadsheet.
 
-#### Example
+### Example
 
 - Request: `GET /1MNXlNRwbUo4-qbTCdBZGW3Q8sq7pUDov-2ElTFOA0wo`
 - Result:
@@ -102,7 +102,7 @@ Lists all available Sheets from your spreadsheet.
 
 Query data from a sheet
 
-#### Example
+### Example
 
 - Query: `GET /1MNXlNRwbUo4-qbTCdBZGW3Q8sq7pUDov-2ElTFOA0wo/Sheet1`
 - Result:
@@ -146,7 +146,7 @@ Append rows to a sheet.
 If a column doesn't exists, it will be added on the right of the table.
 You can you the query string [valueInputOption=RAW](https://developers.google.com/sheets/api/reference/rest/v4/ValueInputOption) to determine how input data should be interpreted.
 
-#### Example
+### Example
 
 - Request: `POST /1MNXlNRwbUo4-qbTCdBZGW3Q8sq7pUDov-2ElTFOA0wo/Sheet1`
 - Body: `[{ "name": "Jean", "email": "jean@appleseed.com" }, { "name": "Bunny", "email": "bunny@appleseed.com" }, ]`
@@ -156,7 +156,7 @@ You can you the query string [valueInputOption=RAW](https://developers.google.co
 
 Query a specific row from a sheet
 
-#### Example
+### Example
 
 - Request: `GET /1MNXlNRwbUo4-qbTCdBZGW3Q8sq7pUDov-2ElTFOA0wo/Sheet1/3`
 - Result: `{"rowNumber": 3, "name": "Jane", "email": "john@appleseed.com"}`
@@ -168,7 +168,7 @@ If a column doesn't exists, it will be added on the right of the table.
 
 You can you the query string [valueInputOption=RAW](https://developers.google.com/sheets/api/reference/rest/v4/ValueInputOption) to determine how input data should be interpreted.
 
-#### Example
+### Example
 
 - Request: `PUT /1MNXlNRwbUo4-qbTCdBZGW3Q8sq7pUDov-2ElTFOA0wo/Sheet1`
 - Body: `{ "4" : { "email": "john@appleseed.com" }, "1": { "phone": "415-500-7000" } }`
@@ -197,7 +197,7 @@ You can you the query string [valueInputOption=RAW](https://developers.google.co
 
 Delete rows from a sheet
 
-#### Example
+### Example
 
 - Request: `Delete /1MNXlNRwbUo4-qbTCdBZGW3Q8sq7pUDov-2ElTFOA0wo/Sheet1`
 - Body: `[4, 5]`

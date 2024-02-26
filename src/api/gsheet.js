@@ -1,7 +1,7 @@
 const express = require('express');
 const { google } = require('googleapis');
 
-const utils = require('../utils');
+const utils = require('../utils.js');
 
 // :oad the environment variable with our keys
 const keysEnvVar = process.env.GOOGLE_CREDENTIALS;
