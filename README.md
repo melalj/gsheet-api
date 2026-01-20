@@ -1,16 +1,14 @@
 # gsheet-api
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![npm version](https://img.shields.io/badge/version-1.2.0-blue.svg)](https://github.com/melalj/gsheet-api)
-[![Node.js](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg)](https://nodejs.org/)
+[![npm version](https://img.shields.io/badge/version-2.0.0-blue.svg)](https://github.com/melalj/gsheet-api)
+[![Bun](https://img.shields.io/badge/bun-%3E%3D1.0.0-brightgreen.svg)](https://bun.sh/)
 [![Docker](https://img.shields.io/badge/docker-available-blue.svg)](https://hub.docker.com/r/melalj/gsheet-api)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
 > A lightweight REST API microservice that turns Google Sheets into a backend database with full CRUD operations.
 
 Use Google Spreadsheets as a simple database for your applications. Perfect for prototypes, small projects, internal tools, and MVPs where you need a quick backend without setting up a full database.
-
-[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/melalj/gsheet-api)
 
 [![dockeri.co](https://dockeri.co/image/melalj/gsheet-api)](https://hub.docker.com/r/melalj/gsheet-api)
 
@@ -22,7 +20,6 @@ Use Google Spreadsheets as a simple database for your applications. Perfect for 
 - [Prerequisites](#prerequisites)
 - [Installation](#installation)
   - [Docker (Recommended)](#docker-recommended)
-  - [Heroku](#heroku)
   - [Local Development](#local-development)
 - [Configuration](#configuration)
   - [Google Cloud Setup](#google-cloud-setup)
@@ -50,7 +47,7 @@ Use Google Spreadsheets as a simple database for your applications. Perfect for 
 - **Pagination Support** - Built-in pagination for large datasets
 - **Dynamic Columns** - Automatically adds new columns when inserting data with new fields
 - **Smart Type Detection** - Automatically converts values to appropriate types (boolean, integer, float)
-- **Multiple Deployment Options** - Deploy via Docker, Heroku, or run locally
+- **Multiple Deployment Options** - Deploy via Docker or run locally
 - **API Key Protection** - Secure your endpoints with API key authentication
 - **Health Checks** - Built-in health check endpoints for monitoring
 - **Lightweight** - Minimal dependencies, fast startup time
@@ -61,7 +58,7 @@ Use Google Spreadsheets as a simple database for your applications. Perfect for 
 
 Before you begin, ensure you have the following:
 
-- **Node.js** >= 18.0.0 (for local development)
+- **Bun** >= 1.0.0 (for local development)
 - **Docker** (for containerized deployment)
 - **Google Cloud Platform Account** with:
   - Google Sheets API enabled
@@ -87,14 +84,6 @@ docker run -p 8080:80 \
   melalj/gsheet-api
 ```
 
-### Heroku
-
-Deploy instantly with one click:
-
-[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/melalj/gsheet-api)
-
-Set the `GOOGLE_CREDENTIALS` config var in your Heroku app settings.
-
 ### Local Development
 
 ```bash
@@ -103,13 +92,13 @@ git clone https://github.com/melalj/gsheet-api.git
 cd gsheet-api
 
 # Install dependencies
-npm install
+bun install
 
 # Create .env file with your credentials (see Configuration section)
 cp .env.example .env
 
 # Start the server
-npm start
+bun start
 ```
 
 The API will be available at `http://localhost:80/` (customize with `PORT` environment variable).
@@ -615,10 +604,20 @@ We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) f
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
 3. Make your changes
-4. Run linting (`npm run lint`)
-5. Commit your changes (`git commit -m 'Add amazing feature'`)
-6. Push to the branch (`git push origin feature/amazing-feature`)
-7. Open a Pull Request
+4. Run linting and formatting (`bun run lint`)
+5. Fix any issues automatically (`bun run lint:fix`)
+6. Commit your changes (`git commit -m 'Add amazing feature'`)
+7. Push to the branch (`git push origin feature/amazing-feature`)
+8. Open a Pull Request
+
+### Code Quality
+
+This project uses [Biome](https://biomejs.dev/) for linting and formatting. Available scripts:
+
+- `bun run lint` - Check for linting and formatting issues
+- `bun run lint:fix` - Automatically fix issues
+- `bun run format` - Format all files
+- `bun run typecheck` - Run TypeScript type checking
 
 Please read our [Code of Conduct](CODE_OF_CONDUCT.md) before contributing.
 
@@ -632,8 +631,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Acknowledgments
 
-- Built with [Express.js](https://expressjs.com/)
+- Built with [Bun](https://bun.sh/) and [Express.js](https://expressjs.com/)
 - Powered by [Google Sheets API](https://developers.google.com/sheets/api)
+- Linting and formatting by [Biome](https://biomejs.dev/)
 - Inspired by the need for simple, quick backends
 
 ---
