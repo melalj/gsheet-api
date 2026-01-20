@@ -4,9 +4,9 @@ on:
   release:
     types: [published]
   push:
-    branches: [main, master]
+    branches: [master]
   pull_request:
-    branches: [main, master]
+    branches: [master]
 
 jobs:
   test:
