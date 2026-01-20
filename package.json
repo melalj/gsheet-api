@@ -1,35 +1,39 @@
 {
-  "name": "gsheet-api",
-  "version": "2.0.0",
-  "description": "Google Spreadsheet API Simplified (with CRUD)",
-  "main": "index.ts",
-  "type": "module",
-  "scripts": {
-    "start": "bun run index.ts",
-    "dev": "bun run --watch index.ts",
-    "test": "bun test --preload ./tests/preload.ts",
-    "typecheck": "bun x tsc --noEmit"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/melalj/gsheet-api.git"
-  },
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/melalj/gsheet-api/issues"
-  },
-  "homepage": "https://github.com/melalj/gsheet-api#readme",
-  "dependencies": {
-    "compression": "^1.7.4",
-    "express": "^4.21.2",
-    "googleapis": "^148.0.0",
-    "morgan": "^1.10.0"
-  },
-  "devDependencies": {
-    "@types/compression": "^1.7.5",
-    "@types/express": "^5.0.0",
-    "@types/morgan": "^1.9.9",
-    "bun-types": "^1.1.38",
-    "typescript": "^5.7.2"
-  }
+	"name": "gsheet-api",
+	"version": "2.0.0",
+	"description": "Google Spreadsheet API Simplified (with CRUD)",
+	"main": "index.ts",
+	"type": "module",
+	"scripts": {
+		"start": "bun run index.ts",
+		"dev": "bun run --watch index.ts",
+		"test": "bun test --preload ./tests/preload.ts",
+		"typecheck": "bun x tsc --noEmit",
+		"lint": "bunx biome check .",
+		"lint:fix": "bunx biome check --write .",
+		"format": "bunx biome format --write ."
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/melalj/gsheet-api.git"
+	},
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/melalj/gsheet-api/issues"
+	},
+	"homepage": "https://github.com/melalj/gsheet-api#readme",
+	"dependencies": {
+		"compression": "^1.7.4",
+		"express": "^4.21.2",
+		"googleapis": "^148.0.0",
+		"morgan": "^1.10.0"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "^2.3.11",
+		"@types/compression": "^1.7.5",
+		"@types/express": "^5.0.0",
+		"@types/morgan": "^1.9.9",
+		"bun-types": "^1.1.38",
+		"typescript": "^5.7.2"
+	}
 }
