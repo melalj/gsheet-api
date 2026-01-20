@@ -22,6 +22,8 @@ jobs:
         run: bun install
       - name: Run type check
         run: bun run typecheck
+      - name: Run lint
+        run: bun run lint
       - name: Run tests
         run: bun test --preload ./tests/preload.ts
 
