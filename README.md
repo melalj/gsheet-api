@@ -1,221 +1,641 @@
-# Google Sheets API
+# gsheet-api
 
-A simple implementation for Google Spreadsheets to use a micro service with your stack.
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![npm version](https://img.shields.io/badge/version-1.2.0-blue.svg)](https://github.com/melalj/gsheet-api)
+[![Node.js](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg)](https://nodejs.org/)
+[![Docker](https://img.shields.io/badge/docker-available-blue.svg)](https://hub.docker.com/r/melalj/gsheet-api)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
-This allow you to use Google Spreadsheets as a backend.
+> A lightweight REST API microservice that turns Google Sheets into a backend database with full CRUD operations.
+
+Use Google Spreadsheets as a simple database for your applications. Perfect for prototypes, small projects, internal tools, and MVPs where you need a quick backend without setting up a full database.
 
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/melalj/gsheet-api)
 
 [![dockeri.co](https://dockeri.co/image/melalj/gsheet-api)](https://hub.docker.com/r/melalj/gsheet-api)
 
-## Get started
+---
 
-### Create a user and load credentials
+## Table of Contents
 
-- Open the [Service Accounts page](https://console.cloud.google.com/iam-admin/serviceaccounts) in the Cloud Console.
-- Click Select a project, choose your project, and click Open.
-- Click Create Service Account.
-- Enter a service account name (friendly display name), an optional description, select a role you wish to grant to the service account, and then click Save.
-- Download the JSON Key, rename it to `credentials.json`
-- [Enable Drive API](https://console.developers.google.com/apis/api/drive.googleapis.com/overview) for your project
-- [Enable Sheets API](https://console.developers.google.com/apis/api/sheets.googleapis.com/overview) for your project
-- On terminal, run the following command to get the environment variable to use with gsheet-api:
+- [Features](#features)
+- [Prerequisites](#prerequisites)
+- [Installation](#installation)
+  - [Docker (Recommended)](#docker-recommended)
+  - [Heroku](#heroku)
+  - [Local Development](#local-development)
+- [Configuration](#configuration)
+  - [Google Cloud Setup](#google-cloud-setup)
+  - [Environment Variables](#environment-variables)
+- [API Reference](#api-reference)
+  - [List Spreadsheets](#list-spreadsheets)
+  - [List Sheets](#list-sheets)
+  - [Query Data](#query-data)
+  - [Get Single Row](#get-single-row)
+  - [Insert Rows](#insert-rows)
+  - [Update Rows](#update-rows)
+  - [Delete Rows](#delete-rows)
+  - [Health Check](#health-check)
+- [Security](#security)
+- [Rate Limits & Quotas](#rate-limits--quotas)
+- [Examples](#examples)
+- [Contributing](#contributing)
+- [License](#license)
 
-```sh
-GOOGLE_CREDENTIALS=`base64 credentials.json`
-```
+---
 
-### Add service Account to your Drive folder/sheets
+## Features
 
-You can add the email that was generated with the service account as an editor to a folder on Google Drive or on a Google Sheet.
+- **Full CRUD Operations** - Create, Read, Update, and Delete data in Google Sheets via REST API
+- **Pagination Support** - Built-in pagination for large datasets
+- **Dynamic Columns** - Automatically adds new columns when inserting data with new fields
+- **Smart Type Detection** - Automatically converts values to appropriate types (boolean, integer, float)
+- **Multiple Deployment Options** - Deploy via Docker, Heroku, or run locally
+- **API Key Protection** - Secure your endpoints with API key authentication
+- **Health Checks** - Built-in health check endpoints for monitoring
+- **Lightweight** - Minimal dependencies, fast startup time
 
-### Start API
+---
 
-- Follow instructions above to create the credentials json file
-- Clone this repo
+## Prerequisites
 
-```sh
-git clone git@github.com:melalj/gsheet-api.git
-```
+Before you begin, ensure you have the following:
 
-- Use docker to load the API
+- **Node.js** >= 18.0.0 (for local development)
+- **Docker** (for containerized deployment)
+- **Google Cloud Platform Account** with:
+  - Google Sheets API enabled
+  - Google Drive API enabled
+  - Service Account with JSON credentials
 
-```sh
+---
+
+## Installation
+
+### Docker (Recommended)
+
+The fastest way to get started is using Docker:
+
+```bash
+# Pull and run the container
 docker run -p 8080:80 -e GOOGLE_CREDENTIALS=$GOOGLE_CREDENTIALS melalj/gsheet-api
+
+# With API key protection
+docker run -p 8080:80 \
+  -e GOOGLE_CREDENTIALS=$GOOGLE_CREDENTIALS \
+  -e PRIVATE_API_KEY=your-secret-key \
+  melalj/gsheet-api
 ```
 
-- You can also [deploy it on Heroku](https://heroku.com/deploy?template=https://github.com/melalj/gsheet-api) and set the config vars (GOOGLE_CREDENTIALS)
+### Heroku
 
-- start it locally
+Deploy instantly with one click:
 
-```sh
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/melalj/gsheet-api)
+
+Set the `GOOGLE_CREDENTIALS` config var in your Heroku app settings.
+
+### Local Development
+
+```bash
+# Clone the repository
+git clone https://github.com/melalj/gsheet-api.git
+cd gsheet-api
+
+# Install dependencies
 npm install
-# You can add your environement variables in a .env file
+
+# Create .env file with your credentials (see Configuration section)
+cp .env.example .env
+
+# Start the server
 npm start
-# the api will be available on http://localhost:80/
-# You can customize the port with the environmenet variable PORT
 ```
 
-## API endpoints
+The API will be available at `http://localhost:80/` (customize with `PORT` environment variable).
 
-### `GET /`
+---
 
-Lists all available Spreadsheets from your Google Drive
+## Configuration
 
-### Example
+### Google Cloud Setup
 
-- Request: `GET /`
-- Result:
+1. **Create a Service Account**
+   - Go to the [Service Accounts page](https://console.cloud.google.com/iam-admin/serviceaccounts) in Google Cloud Console
+   - Select your project (or create a new one)
+   - Click **Create Service Account**
+   - Enter a name and description
+   - Grant the role **Editor** (or appropriate permissions)
+   - Click **Done**
+
+2. **Generate JSON Key**
+   - Click on the created service account
+   - Go to the **Keys** tab
+   - Click **Add Key** > **Create new key**
+   - Select **JSON** format
+   - Download and save as `credentials.json`
+
+3. **Enable Required APIs**
+   - [Enable Google Drive API](https://console.developers.google.com/apis/api/drive.googleapis.com/overview)
+   - [Enable Google Sheets API](https://console.developers.google.com/apis/api/sheets.googleapis.com/overview)
+
+4. **Generate Base64 Credentials**
+   ```bash
+   # On Linux/macOS
+   export GOOGLE_CREDENTIALS=$(base64 -w 0 credentials.json)
+
+   # On macOS (alternative)
+   export GOOGLE_CREDENTIALS=$(base64 credentials.json)
+
+   # On Windows (PowerShell)
+   $GOOGLE_CREDENTIALS = [Convert]::ToBase64String([IO.File]::ReadAllBytes("credentials.json"))
+   ```
+
+5. **Share Your Spreadsheet**
+   - Open your Google Spreadsheet
+   - Click **Share**
+   - Add the service account email (found in `credentials.json` as `client_email`)
+   - Grant **Editor** access
+
+### Environment Variables
+
+| Variable | Required | Default | Description |
+|----------|----------|---------|-------------|
+| `GOOGLE_CREDENTIALS` | Yes | - | Base64-encoded Google service account JSON credentials |
+| `PORT` | No | `80` | Port number for the server |
+| `HOST` | No | `0.0.0.0` | Host address to bind to |
+| `PRIVATE_API_KEY` | No | - | API key for `X-Private-Api-Key` header authentication |
+| `PRIVATE_API_KEY_QUERY` | No | - | API key for `?key=` query string authentication |
+| `NODE_ENV` | No | - | Set to `production` for production mode |
+
+#### Example `.env` file
+
+```env
+GOOGLE_CREDENTIALS=eyJ0eXBlIjoic2VydmljZV9hY2NvdW50Ii...
+PORT=3000
+PRIVATE_API_KEY=your-secret-api-key
+NODE_ENV=production
+```
+
+---
+
+## API Reference
+
+### List Spreadsheets
+
+Returns all spreadsheets accessible by the service account.
+
+```http
+GET /
+```
+
+#### Response
 
 ```json
 [
   {
     "id": "1MNXlNRwbUo4-qbTCdBZGW3Q8sq7pUDov-2ElTFOA0wo",
-    "name": "Leads",
-    "modifiedTime": "2020-04-24T13:36:53.699Z"
+    "name": "My Spreadsheet",
+    "modifiedTime": "2024-01-15T10:30:00.000Z"
   }
 ]
 ```
 
-### `GET /:sheetId`
+---
 
-Lists all available Sheets from your spreadsheet.
+### List Sheets
 
-### Example
+Returns all sheets within a spreadsheet.
 
-- Request: `GET /1MNXlNRwbUo4-qbTCdBZGW3Q8sq7pUDov-2ElTFOA0wo`
-- Result:
+```http
+GET /:spreadsheetId
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `spreadsheetId` | string | The ID of the spreadsheet (from URL) |
+
+#### Response
 
 ```json
 [
   {
     "title": "Sheet1",
-    "sheetId": 4543532,
-    "rowNumber": 0,
-    "rowCount": 2,
-    "columnCount": 2,
+    "sheetId": 0,
+    "rowCount": 1000,
+    "columnCount": 26
+  },
+  {
+    "title": "Sheet2",
+    "sheetId": 123456789,
+    "rowCount": 500,
+    "columnCount": 10
   }
 ]
 ```
 
-### `GET /:sheetId/:sheetName`
+---
 
-Query data from a sheet
+### Query Data
 
-### Example
+Retrieves data from a specific sheet with pagination support.
 
-- Query: `GET /1MNXlNRwbUo4-qbTCdBZGW3Q8sq7pUDov-2ElTFOA0wo/Sheet1`
-- Result:
-
-```json
-  {
-    "columns": {
-      "name": "Sheet1!A",
-      "email": "Sheet1!B"
-    },
-    "pagination": {
-      "haveNext": false,
-      "totalItems": 2,
-      "range": "Sheet1!A2:DD1001"
-    },
-    "data": [
-      {
-        "name": "Simo",
-        "email": "simo@appleseed.com"
-      },
-      {
-        "name": "Jane",
-        "email": "jane@appleseed.com"
-      }
-    ]
-  }
+```http
+GET /:spreadsheetId/:sheetName
 ```
 
-#### Query Strings
+#### Parameters
 
-| Name | Type | Required | Description |
-| ----- | ---- | -------- | ----------- |
-| perPage | integer | No | How many items per page (default: 1000) |
-| offset | integer | No | Query data from a specific row (default: 2) |
-| maxColumns | integer | No | Number of colums in the sheet (default: 109) |
-| returnColumn | string | No | Returns only one specific |
+| Name | Type | Description |
+|------|------|-------------|
+| `spreadsheetId` | string | The ID of the spreadsheet |
+| `sheetName` | string | The name of the sheet |
 
-### `POST /:sheetId/:sheetName`
+#### Query Parameters
 
-Append rows to a sheet.
-If a column doesn't exists, it will be added on the right of the table.
-You can you the query string [valueInputOption=RAW](https://developers.google.com/sheets/api/reference/rest/v4/ValueInputOption) to determine how input data should be interpreted.
+| Name | Type | Default | Description |
+|------|------|---------|-------------|
+| `perPage` | integer | `1000` | Number of rows per page |
+| `offset` | integer | `2` | Starting row number (row 1 is headers) |
+| `maxColumns` | integer | `109` | Maximum number of columns to read |
+| `returnColumn` | string | - | Return only a specific column |
 
-### Example
+#### Response
 
-- Request: `POST /1MNXlNRwbUo4-qbTCdBZGW3Q8sq7pUDov-2ElTFOA0wo/Sheet1`
-- Body: `[{ "name": "Jean", "email": "jean@appleseed.com" }, { "name": "Bunny", "email": "bunny@appleseed.com" }, ]`
-- Result: `{"insertedRow": 2}`
+```json
+{
+  "columns": {
+    "name": "Sheet1!A",
+    "email": "Sheet1!B",
+    "age": "Sheet1!C"
+  },
+  "pagination": {
+    "haveNext": true,
+    "totalItems": 2500,
+    "range": "Sheet1!A2:DD1001"
+  },
+  "data": [
+    {
+      "name": "John Doe",
+      "email": "john@example.com",
+      "age": 30
+    },
+    {
+      "name": "Jane Smith",
+      "email": "jane@example.com",
+      "age": 25
+    }
+  ]
+}
+```
 
-### `GET /:sheetId/:sheetName/:rowNumber`
+---
 
-Query a specific row from a sheet
+### Get Single Row
 
-### Example
+Retrieves a specific row by row number.
 
-- Request: `GET /1MNXlNRwbUo4-qbTCdBZGW3Q8sq7pUDov-2ElTFOA0wo/Sheet1/3`
-- Result: `{"rowNumber": 3, "name": "Jane", "email": "john@appleseed.com"}`
+```http
+GET /:spreadsheetId/:sheetName/:rowNumber
+```
 
-### `PUT /:sheetId/:sheetName`
+#### Parameters
 
-Update rows in a sheet.
-If a column doesn't exists, it will be added on the right of the table.
+| Name | Type | Description |
+|------|------|-------------|
+| `spreadsheetId` | string | The ID of the spreadsheet |
+| `sheetName` | string | The name of the sheet |
+| `rowNumber` | integer | The row number to retrieve |
 
-You can you the query string [valueInputOption=RAW](https://developers.google.com/sheets/api/reference/rest/v4/ValueInputOption) to determine how input data should be interpreted.
+#### Response
 
-### Example
+```json
+{
+  "rowNumber": 3,
+  "name": "Jane Smith",
+  "email": "jane@example.com",
+  "age": 25
+}
+```
 
-- Request: `PUT /1MNXlNRwbUo4-qbTCdBZGW3Q8sq7pUDov-2ElTFOA0wo/Sheet1`
-- Body: `{ "4" : { "email": "john@appleseed.com" }, "1": { "phone": "415-500-7000" } }`
-- Result:
+---
+
+### Insert Rows
+
+Appends new rows to a sheet. Automatically creates new columns if fields don't exist.
+
+```http
+POST /:spreadsheetId/:sheetName
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `spreadsheetId` | string | The ID of the spreadsheet |
+| `sheetName` | string | The name of the sheet |
+
+#### Query Parameters
+
+| Name | Type | Default | Description |
+|------|------|---------|-------------|
+| `valueInputOption` | string | `USER_ENTERED` | How input is interpreted: `RAW` or `USER_ENTERED` |
+
+#### Request Body
+
+```json
+[
+  { "name": "Alice", "email": "alice@example.com", "age": 28 },
+  { "name": "Bob", "email": "bob@example.com", "age": 32 }
+]
+```
+
+#### Response
+
+```json
+{
+  "insertedRows": 2
+}
+```
+
+---
+
+### Update Rows
+
+Updates specific rows in a sheet. Automatically creates new columns if fields don't exist.
+
+```http
+PUT /:spreadsheetId/:sheetName
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `spreadsheetId` | string | The ID of the spreadsheet |
+| `sheetName` | string | The name of the sheet |
+
+#### Query Parameters
+
+| Name | Type | Default | Description |
+|------|------|---------|-------------|
+| `valueInputOption` | string | `USER_ENTERED` | How input is interpreted: `RAW` or `USER_ENTERED` |
+
+#### Request Body
+
+Object where keys are row numbers and values are the fields to update:
+
+```json
+{
+  "3": { "email": "newemail@example.com" },
+  "5": { "name": "Updated Name", "age": 35 }
+}
+```
+
+#### Response
 
 ```json
 [
   {
     "spreadsheetId": "1MNXlNRwbUo4-qbTCdBZGW3Q8sq7pUDov-2ElTFOA0wo",
-    "updatedRange": "Sheet1!B4",
+    "updatedRange": "Sheet1!B3",
     "updatedRows": 1,
     "updatedColumns": 1,
     "updatedCells": 1
   },
   {
     "spreadsheetId": "1MNXlNRwbUo4-qbTCdBZGW3Q8sq7pUDov-2ElTFOA0wo",
-    "updatedRange": "Sheet1!C1",
+    "updatedRange": "Sheet1!A5:C5",
     "updatedRows": 1,
-    "updatedColumns": 1,
-    "updatedCells": 1
+    "updatedColumns": 2,
+    "updatedCells": 2
   }
 ]
 ```
 
-### `DELETE /:sheetId/:sheetName`
+---
 
-Delete rows from a sheet
+### Delete Rows
 
-### Example
+Deletes specific rows from a sheet.
 
-- Request: `Delete /1MNXlNRwbUo4-qbTCdBZGW3Q8sq7pUDov-2ElTFOA0wo/Sheet1`
-- Body: `[4, 5]`
-- Result: `{ "deletedRows": 2 }`
+```http
+DELETE /:spreadsheetId/:sheetName
+```
 
-## Secure your endpoints
+#### Parameters
 
-You can secure these endpoints with either:
+| Name | Type | Description |
+|------|------|-------------|
+| `spreadsheetId` | string | The ID of the spreadsheet |
+| `sheetName` | string | The name of the sheet |
 
-- `X-Private-Api-Key` header: You need to set the environement variable `PRIVATE_API_KEY`
-- `key` query string: You need to set the environement variable `PRIVATE_API_KEY_QUERY`
+#### Request Body
 
-## Limitations and Quota
+Array of row numbers to delete:
 
-[Following Google Sheets API documentation](https://developers.google.com/sheets/api/limits). This version of the Google Sheets API has a limit of 500 requests per 100 seconds per project, and 100 requests per 100 seconds per user. Limits for reads and writes are tracked separately. There is no daily usage limit.
+```json
+[3, 5, 7]
+```
 
-Be mindful about this limitation, if you want to use this api as a backend for your frontend!
+#### Response
 
-## Contribute
+```json
+{
+  "deletedRows": 3
+}
+```
 
-You are welcomed to fork the project and make pull requests. Or just file an issue or suggestion 😊
+---
+
+### Health Check
+
+Check if the API is running.
+
+```http
+GET /health
+GET /~health
+```
+
+#### Response
+
+```json
+{
+  "status": "ok"
+}
+```
+
+---
+
+## Security
+
+### API Key Authentication
+
+Protect your endpoints using one of the following methods:
+
+#### Header-based Authentication
+
+Set the `PRIVATE_API_KEY` environment variable and include the key in requests:
+
+```bash
+curl -H "X-Private-Api-Key: your-secret-key" http://localhost:8080/
+```
+
+#### Query String Authentication
+
+Set the `PRIVATE_API_KEY_QUERY` environment variable and include the key in the URL:
+
+```bash
+curl "http://localhost:8080/?key=your-secret-key"
+```
+
+### Best Practices
+
+1. **Always use HTTPS** in production
+2. **Use strong, random API keys** (at least 32 characters)
+3. **Limit service account permissions** to only necessary spreadsheets
+4. **Regularly rotate credentials** and API keys
+5. **Monitor API usage** for suspicious activity
+
+---
+
+## Rate Limits & Quotas
+
+This API is subject to [Google Sheets API quotas](https://developers.google.com/sheets/api/limits):
+
+| Limit | Value |
+|-------|-------|
+| Requests per project | 500 per 100 seconds |
+| Requests per user | 100 per 100 seconds |
+| Daily usage limit | None |
+
+**Note:** Read and write operations have separate quotas.
+
+### Recommendations
+
+- Implement caching for frequently accessed data
+- Use batch operations when possible
+- Consider rate limiting on your end for high-traffic applications
+- Monitor your Google Cloud Console for quota usage
+
+---
+
+## Examples
+
+### JavaScript (fetch)
+
+```javascript
+// List all spreadsheets
+const response = await fetch('http://localhost:8080/', {
+  headers: {
+    'X-Private-Api-Key': 'your-api-key'
+  }
+});
+const spreadsheets = await response.json();
+
+// Get data from a sheet
+const data = await fetch(
+  'http://localhost:8080/SPREADSHEET_ID/Sheet1?perPage=100'
+).then(r => r.json());
+
+// Insert new rows
+await fetch('http://localhost:8080/SPREADSHEET_ID/Sheet1', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'X-Private-Api-Key': 'your-api-key'
+  },
+  body: JSON.stringify([
+    { name: 'New User', email: 'user@example.com' }
+  ])
+});
+```
+
+### cURL
+
+```bash
+# List spreadsheets
+curl -H "X-Private-Api-Key: your-key" http://localhost:8080/
+
+# Get data with pagination
+curl "http://localhost:8080/SPREADSHEET_ID/Sheet1?perPage=50&offset=2"
+
+# Insert data
+curl -X POST http://localhost:8080/SPREADSHEET_ID/Sheet1 \
+  -H "Content-Type: application/json" \
+  -d '[{"name": "Test", "email": "test@example.com"}]'
+
+# Update data
+curl -X PUT http://localhost:8080/SPREADSHEET_ID/Sheet1 \
+  -H "Content-Type: application/json" \
+  -d '{"3": {"name": "Updated Name"}}'
+
+# Delete rows
+curl -X DELETE http://localhost:8080/SPREADSHEET_ID/Sheet1 \
+  -H "Content-Type: application/json" \
+  -d '[3, 4, 5]'
+```
+
+### Python
+
+```python
+import requests
+
+BASE_URL = 'http://localhost:8080'
+HEADERS = {'X-Private-Api-Key': 'your-api-key'}
+
+# Get all spreadsheets
+spreadsheets = requests.get(BASE_URL, headers=HEADERS).json()
+
+# Get data from sheet
+data = requests.get(
+    f'{BASE_URL}/SPREADSHEET_ID/Sheet1',
+    params={'perPage': 100},
+    headers=HEADERS
+).json()
+
+# Insert rows
+requests.post(
+    f'{BASE_URL}/SPREADSHEET_ID/Sheet1',
+    json=[{'name': 'Alice', 'email': 'alice@example.com'}],
+    headers=HEADERS
+)
+```
+
+---
+
+## Contributing
+
+We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
+
+### Quick Start
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Make your changes
+4. Run linting (`npm run lint`)
+5. Commit your changes (`git commit -m 'Add amazing feature'`)
+6. Push to the branch (`git push origin feature/amazing-feature`)
+7. Open a Pull Request
+
+Please read our [Code of Conduct](CODE_OF_CONDUCT.md) before contributing.
+
+---
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+## Acknowledgments
+
+- Built with [Express.js](https://expressjs.com/)
+- Powered by [Google Sheets API](https://developers.google.com/sheets/api)
+- Inspired by the need for simple, quick backends
+
+---
+
+Made with love by [melalj](https://github.com/melalj) and [contributors](https://github.com/melalj/gsheet-api/graphs/contributors)
