@@ -1,15 +1,13 @@
-const bodyParser = require('body-parser');
-const compression = require('compression');
-const express = require('express');
-const morgan = require('morgan');
+import compression from 'compression';
+import express, { type Request, type Response, type NextFunction } from 'express';
+import morgan from 'morgan';
 
-const { throwError } = require('../utils.js');
-
-const gsheetEndpoint = require('./gsheet.js');
+import { throwError, type AppError } from '../utils.js';
+import gsheetEndpoint from './gsheet.js';
 
 const logger = morgan('combined');
 
-const endpoints = {
+const endpoints: Record<string, express.Router> = {
   '/': gsheetEndpoint,
 };
 
@@ -19,16 +17,16 @@ const app = express();
 // Add Middlewares
 app.disable('x-powered-by');
 app.set('trust proxy', ['loopback', 'linklocal', 'uniquelocal']);
-app.use(bodyParser.json({ limit: '10mb' }));
-app.use(bodyParser.urlencoded({ limit: '10mb', extended: true, parameterLimit: 10000 }));
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ limit: '10mb', extended: true, parameterLimit: 10000 }));
 
 // Health check
-app.get('/~health', (req, res) => res.send('ok'));
-app.get('/health', (req, res) => res.send('ok'));
+app.get('/~health', (_req: Request, res: Response) => res.send('ok'));
+app.get('/health', (_req: Request, res: Response) => res.send('ok'));
 
 // Remove trailing slashes
-app.use((req, res, next) => {
-  if (req.path.substr(-1) === '/' && req.path.length > 1) {
+app.use((req: Request, res: Response, next: NextFunction) => {
+  if (req.path.slice(-1) === '/' && req.path.length > 1) {
     const query = req.url.slice(req.path.length);
     res.redirect(301, req.path.slice(0, -1) + query);
   } else {
@@ -43,7 +41,7 @@ app.use(compression());
 app.use(logger);
 
 // Check privateKey
-app.use((req, res, next) => {
+app.use((req: Request, _res: Response, next: NextFunction) => {
   if (
     (
       process.env.PRIVATE_API_KEY
@@ -51,7 +49,7 @@ app.use((req, res, next) => {
     )
     || (
       process.env.PRIVATE_API_KEY_QUERY
-      && process.env.PRIVATE_API_KEY_QUERY !== req.query.key
+      && process.env.PRIVATE_API_KEY_QUERY !== (req.query.key as string | undefined)
     )
   ) {
     throwError('Unauthorized', 403);
@@ -65,18 +63,17 @@ Object.keys(endpoints).forEach((endpoint) => {
 });
 
 // Page not found
-app.use((req, res) => {
+app.use((_req: Request, res: Response) => {
   res.status(404);
   return res.send({ error: 'Not found' });
 });
 
 // Output Error page
-app.use((err, req, res, next) => { // eslint-disable-line
+app.use((err: AppError, _req: Request, res: Response, _next: NextFunction) => {
   const status = err.status || 500;
   res.status(status);
   if (status >= 500) {
-    // eslint-disable-next-line no-console
-    console.error(`${err.message} (${err.stack.replace(/\n/g, ', ')})`);
+    console.error(`${err.message} (${err.stack?.replace(/\n/g, ', ')})`);
   }
   if (process.env.NODE_ENV === 'production') {
     return res.send({ error: err.message });
@@ -89,4 +86,4 @@ app.use((err, req, res, next) => { // eslint-disable-line
   });
 });
 
-module.exports = app;
+export default app;

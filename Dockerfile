@@ -1,6 +1,7 @@
-FROM node:20.11-slim
+FROM oven/bun:1-slim
 RUN mkdir -p /app
 WORKDIR /app
+ADD package.json bun.lock* /app/
+RUN bun install --frozen-lockfile || bun install
 ADD . /app
-RUN npm ci --ignore-scripts
-CMD ["node", "index.js"]
+CMD ["bun", "run", "index.ts"]
